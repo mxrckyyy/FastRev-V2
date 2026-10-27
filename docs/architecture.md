@@ -109,4 +109,4 @@ Only providers with configured keys are attempted. Skip cooling-down providers (
 - shadcn/ui component source: `client/src/components/ui/`.
 - Shared utilities: `client/src/lib/utils.js` (`cn`), `client/src/lib/api.js` (Fetch wrapper).
 - Animation libraries: Motion (`motion`) installed for future use; GSAP and AutoAnimate deferred to later phases (not installed yet) to keep foundation lightweight. Aceternity UI components will be added selectively when needed.
-- Environment validation warns on missing required variables but does not crash the process in development.
+- Environment validation warns on missing required variables and does not crash the process in development; production-critical missing variables fail startup in production.

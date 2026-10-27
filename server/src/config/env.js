@@ -21,6 +21,9 @@ export function validateEnv() {
   if (missing.length) {
     // eslint-disable-next-line no-console
     console.warn(`[env] Missing required environment variables: ${missing.join(', ')}`);
+    if (env.nodeEnv === 'production') {
+      throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+    }
   }
   return { missing };
 }

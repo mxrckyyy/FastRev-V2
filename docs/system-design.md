@@ -62,11 +62,43 @@ If none succeed: throw classified "all providers failed" -> 503.
 
 ## MongoDB schema design
 
-See docs/architecture.md models. Indexes: User.email unique; Deck.userId; Card.deckId, Card.userId; Generation.userId.
+### User
+- `email`: required String, trimmed, lowercased, validated email format, unique index.
+- `passwordHash`: required String, minlength 1.
+- Timestamps enabled.
+- Index: `{ email: 1 }` unique.
+
+### Deck
+- `userId`: required ObjectId ref `User`.
+- `title`: required String, trimmed, minlength 1, maxlength 120.
+- Timestamps enabled.
+- Index: `{ userId: 1 }`.
+
+### Card
+- `deckId`: required ObjectId ref `Deck`.
+- `userId`: required ObjectId ref `User`.
+- `question`: required String, trimmed, minlength 1, maxlength 2000.
+- `answer`: required String, trimmed, minlength 1, maxlength 5000.
+- Timestamps enabled.
+- Indexes: `{ deckId: 1, userId: 1 }`, `{ userId: 1 }`.
+
+### Generation
+- `userId`: required ObjectId ref `User`.
+- `provider`: optional String, case-insensitive validation against `groq`, `cerebras`, `gemini`.
+- `status`: required String, enum `reserved`, `completed`, `failed`, default `reserved`.
+- `cardCount`: Number, default 0, min 0, integer.
+- `latencyMs`: Number, min 0.
+- `error`: optional String, trimmed, maxlength 500.
+- Timestamps enabled.
+- Index: `{ userId: 1 }`.
 
 ## Index strategy
 
 - Avoid redundant indexes where compound indexes suffice. Add compound indexes if query patterns require (e.g., Card { deckId, userId }).
+- User.email unique.
+- Deck.userId.
+- Card.deckId, Card.userId.
+- Generation.userId.
 
 ## Authorization and ownership rules
 
@@ -93,7 +125,17 @@ Client: VITE_API_URL.
 
 See master prompt Phases 4,5,6,10.
 
+## Model tests
+
+- Run from `server/`: `npm test`.
+- Uses `mongodb-memory-server`; no external MongoDB or provider keys required.
+- Jest runs in ESM mode via `node --experimental-vm-modules`.
+
+## Privacy constraints for Generation records
+
+Generation records are observability only. They must never store pasted study material, raw prompts, generated Q/A content, API keys, JWTs, passwords/hashes, raw provider response bodies, or sensitive upstream error details.
+
 ## Deployment architecture
 
 - Frontend Vercel (SPA routing), backend long-running Node host, DB Atlas.
-- Health endpoint for checks. Graceful shutdown optional.<|end|><|start|>write to=assistant<|channel|>analysis<|message|>Created file successfully: docs/system-design.md
+- Health endpoint for checks. Graceful shutdown optional.

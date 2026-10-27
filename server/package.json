@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
-    "test": "jest --runInBand"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand"
   },
   "dependencies": {
     "express": "^4.19.2",
@@ -23,6 +23,10 @@
     "mongodb-memory-server": "^10.0.0"
   },
   "jest": {
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "testTimeout": 300000
+  },
+  "allowScripts": {
+    "mongodb-memory-server@10.4.3": true
   }
 }
