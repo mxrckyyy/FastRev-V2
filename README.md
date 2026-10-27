@@ -27,7 +27,23 @@ See `docs/projectcontext.md`. Current phase: Phase 0 (repository audit, document
 
 ## Local development setup
 
-Not yet available; feature implementation begins in Phase 1. Setup instructions will be added as phases complete.
+Frontend:
+```
+cd client
+npm install
+npm run dev
+```
+Runs on http://localhost:5173.
+
+Backend:
+```
+cd server
+npm install
+npm start
+```
+Runs on http://localhost:5000 (or PORT). Set environment variables in server/.env (see .env.example).
+
+Health check: GET http://localhost:5000/api/health
 
 ## Environment configuration
 

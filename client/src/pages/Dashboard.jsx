@@ -1,0 +1,18 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
+export default function Dashboard() {
+  return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+      <Card>
+        <CardHeader>
+          <CardTitle>Your decks</CardTitle>
+          <CardDescription>Deck management is implemented in Phase 7.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">No decks yet.</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

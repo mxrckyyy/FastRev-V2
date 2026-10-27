@@ -100,3 +100,13 @@ Only providers with configured keys are attempted. Skip cooling-down providers (
 - In-memory cooldown/rate-limit: simple, single-instance; resets on restart; not shared across replicas. Acceptable for initial scope; Redis deferred.
 - JWT in browser storage: XSS risk documented; HttpOnly cookie alternative requires CSRF changes — document before adopting.
 - No daily quota: relies on provider capacity + anti-abuse limits; honest messaging.
+
+## Phase 1 implementation notes
+
+- Frontend entry: `client/src/main.jsx` -> `client/src/App.jsx` -> `client/src/app/router.jsx`.
+- Backend entry: `server/src/server.js` -> `server/src/app.js` (`createApp`).
+- Design tokens: CSS variables in `client/src/styles/index.css`; Tailwind config `client/tailwind.config.js`.
+- shadcn/ui component source: `client/src/components/ui/`.
+- Shared utilities: `client/src/lib/utils.js` (`cn`), `client/src/lib/api.js` (Fetch wrapper).
+- Animation libraries: Motion (`motion`) installed for future use; GSAP and AutoAnimate deferred to later phases (not installed yet) to keep foundation lightweight. Aceternity UI components will be added selectively when needed.
+- Environment validation warns on missing required variables but does not crash the process in development.

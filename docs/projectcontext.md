@@ -76,13 +76,12 @@ See master prompt Phase 12.
 
 ## Current phase
 
-Phase 0 — Repository audit, documentation, and file structure.
+Phase 1 — Project foundation and design system (complete, pending approval to proceed).
 
 ## Completed work
 
-- Repository inspected: empty directory, not a git repo. Initialized git (branch `main`).
-- Created baseline directory structure.
-- Created AGENTS.md, agentd.md, docs/*.md, (README pending).
+- Phase 0: repository audit, documentation, baseline structure.
+- Phase 1: frontend (React + Vite + Tailwind + shadcn/ui foundation, routing, app shell, design tokens, API client) and backend (Express app factory, env config, Mongoose connection, CORS, JSON parsing, health endpoint, not-found, centralized error handler, request logger).
 
 ## Remaining work
 
