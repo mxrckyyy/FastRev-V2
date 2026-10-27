@@ -1,5 +1,7 @@
 // Shared API client foundation. Extended in later phases.
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const BASE_URL = import.meta.env.DEV
+  ? import.meta.env.VITE_API_URL || 'http://localhost:5000'
+  : '';
 
 export async function apiRequest(path, options = {}) {
   const { method = 'GET', body, headers = {}, token } = options;
