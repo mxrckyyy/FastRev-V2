@@ -6,6 +6,9 @@ import { isDbConnected } from './config/db.js';
 import requestLogger from './middleware/requestLogger.js';
 import notFound from './middleware/notFound.js';
 import errorHandler from './middleware/errorHandler.js';
+import authRoutes from './routes/authRoutes.js';
+import generateRoutes from './routes/generateRoutes.js';
+import deckRoutes from './routes/deckRoutes.js';
 
 validateEnv();
 
@@ -35,7 +38,14 @@ export function createApp() {
     });
   });
 
-  // Route registration placeholder (expanded in later phases).
+  // Authentication routes
+  app.use('/api/auth', authRoutes);
+
+  // Generation routes
+  app.use('/api/generate', generateRoutes);
+
+  // Deck management routes
+  app.use('/api/decks', deckRoutes);
 
   app.use(notFound);
   app.use(errorHandler);

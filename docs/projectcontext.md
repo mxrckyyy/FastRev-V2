@@ -76,17 +76,22 @@ See master prompt Phase 12.
 
 ## Current phase
 
-Phase 1 — Project foundation and design system (complete, pending approval to proceed).
+Phase 6 — Deck management API (complete, pending approval to proceed to Phase 7).
 
 ## Completed work
 
 - Phase 0: repository audit, documentation, baseline structure.
 - Phase 1: frontend (React + Vite + Tailwind + shadcn/ui foundation, routing, app shell, design tokens, API client) and backend (Express app factory, env config, Mongoose connection, CORS, JSON parsing, health endpoint, not-found, centralized error handler, request logger).
+- Phase 2: database models (User, Deck, Card, Generation) with validation, trimming, length constraints, relationships, and indexes; automated model tests using mongodb-memory-server (42 tests passing).
+- Phase 3: authentication and authorization (POST /api/auth/register, POST /api/auth/login, GET /api/auth/me) with bcryptjs password hashing (rounds = 10), JWT token issuance/verification, authorization middleware (`authenticate`), email normalization, generic authentication error handling, and 29 automated tests (71 total tests passing).
+- Phase 4: AI provider adapters (Groq, Cerebras, Gemini) adhering to a common interface, centralized FallbackEngine with strict Groq -> Cerebras -> Gemini priority, in-memory CooldownManager (60s on 429), timeout handling via AbortController (15s default), bounded retries for transient errors, flashcard response parsing/validation (`parseFlashcards`), and 47 automated unit/integration tests (118 total tests passing).
+- Phase 5: protected generation endpoint (`POST /api/generate`), request validation (max 20,000 chars material, title, card count), Generation ledger lifecycle (`reserved` -> `completed`/`failed`), Deck and Card persistence with compensating cleanup on partial failures, in-memory rate limiting (1 request per 5 seconds and 30 per rolling hour per user), error sanitization (no secret leakage), and 18 automated integration tests (136 total tests passing).
+- Phase 6: deck management API (`GET /api/decks`, `GET /api/decks/:deckId`, `PATCH /api/decks/:deckId`, `DELETE /api/decks/:deckId`) with strict user ownership scoping, cardCount aggregation, non-leaking 404 responses, associated card cleanup on deletion, input validation (1–120 char title), and 25 automated integration tests (161 total tests passing).
 
 ## Remaining work
 
-- README.md, .gitignore, minimal config files, validation of Phase 0.
-- All feature phases 1–12.
+- README.md updates, validation of subsequent phases.
+- Phases 7–12 (frontend authentication & dashboard, generation interface, deck study experience, etc.).
 
 ## Known risks and blockers
 
