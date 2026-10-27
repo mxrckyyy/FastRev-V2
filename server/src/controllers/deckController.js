@@ -8,18 +8,17 @@ export const MAX_TITLE_LENGTH = 120;
  * List all decks belonging to the authenticated user.
  * GET /api/decks
  */
-export async function getDecks(req, res, next) {
+export async function listDecks(req, res, next) {
   try {
     const userId = req.user.userId;
 
-    // Fetch user's decks sorted newest first
     const decks = await Deck.find({ userId }).sort({ createdAt: -1 }).lean();
 
     if (decks.length === 0) {
       return res.status(200).json({ decks: [] });
     }
 
-    // Group card counts by deckId in a single aggregation query
+    // Aggregate card counts in a single query instead of N+1
     const cardCounts = await Card.aggregate([
       { $match: { userId: new mongoose.Types.ObjectId(userId) } },
       { $group: { _id: '$deckId', count: { $sum: 1 } } },
@@ -30,7 +29,7 @@ export async function getDecks(req, res, next) {
       countMap.set(item._id.toString(), item.count);
     });
 
-    const serializedDecks = decks.map((deck) => ({
+    const serialized = decks.map((deck) => ({
       id: deck._id.toString(),
       title: deck.title,
       cardCount: countMap.get(deck._id.toString()) || 0,
@@ -38,7 +37,64 @@ export async function getDecks(req, res, next) {
       updatedAt: deck.updatedAt,
     }));
 
-    return res.status(200).json({ decks: serializedDecks });
+    return res.status(200).json({ decks: serialized });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * Create a new deck for the authenticated user.
+ * POST /api/decks
+ */
+export async function createDeck(req, res, next) {
+  try {
+    const userId = req.user.userId;
+    const { title } = req.body || {};
+
+    if (title === undefined || title === null) {
+      return res.status(400).json({
+        error: { code: 'VALIDATION_ERROR', message: 'Title is required' },
+      });
+    }
+
+    if (typeof title !== 'string') {
+      return res.status(400).json({
+        error: { code: 'VALIDATION_ERROR', message: 'Title must be a string' },
+      });
+    }
+
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
+      return res.status(400).json({
+        error: { code: 'VALIDATION_ERROR', message: 'Title cannot be empty' },
+      });
+    }
+
+    if (trimmedTitle.length > MAX_TITLE_LENGTH) {
+      return res.status(400).json({
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: `Title must be at most ${MAX_TITLE_LENGTH} characters`,
+        },
+      });
+    }
+
+    // userId always comes from the verified JWT, never from the request body
+    const deck = await Deck.create({
+      userId,
+      title: trimmedTitle,
+    });
+
+    return res.status(201).json({
+      deck: {
+        id: deck._id.toString(),
+        title: deck.title,
+        cardCount: 0,
+        createdAt: deck.createdAt,
+        updatedAt: deck.updatedAt,
+      },
+    });
   } catch (err) {
     next(err);
   }
@@ -67,7 +123,7 @@ export async function getDeckById(req, res, next) {
       });
     }
 
-    // Retrieve cards strictly scoped to deckId and the authenticated userId
+    // Retrieve cards strictly scoped to both deckId and authenticated userId
     const cards = await Card.find({ deckId: deck._id, userId })
       .sort({ createdAt: 1 })
       .lean();
@@ -137,7 +193,6 @@ export async function updateDeck(req, res, next) {
       });
     }
 
-    // Only update title; protected fields like userId, _id are ignored
     const updatedDeck = await Deck.findOneAndUpdate(
       { _id: deckId, userId },
       { $set: { title: trimmedTitle } },
@@ -169,6 +224,14 @@ export async function updateDeck(req, res, next) {
 /**
  * Delete a deck and all associated cards belonging to the authenticated user.
  * DELETE /api/decks/:deckId
+ *
+ * Deletion order: cards first, then deck.
+ * - If card deletion fails, the deck is not modified (consistent state).
+ * - If deck deletion fails after cards are deleted, cards are orphaned.
+ *   This is a known limitation of the non-transactional approach.
+ *   The client receives a 500 error and may retry.
+ *
+ * MongoDB transactions are explicitly out of scope for this project.
  */
 export async function deleteDeck(req, res, next) {
   try {
@@ -181,7 +244,7 @@ export async function deleteDeck(req, res, next) {
       });
     }
 
-    // Verify ownership before deleting
+    // Verify ownership before any mutation
     const deck = await Deck.findOne({ _id: deckId, userId });
 
     if (!deck) {
@@ -190,9 +253,33 @@ export async function deleteDeck(req, res, next) {
       });
     }
 
-    // Delete associated cards and the deck
-    await Card.deleteMany({ deckId: deck._id, userId });
-    await Deck.findByIdAndDelete(deck._id);
+    // Step 1: Delete associated cards (scoped to deckId + userId).
+    // If this fails, the deck remains intact — fully consistent state.
+    try {
+      await Card.deleteMany({ deckId: deck._id, userId });
+    } catch (cardDeleteErr) {
+      return res.status(500).json({
+        error: {
+          code: 'SERVER_ERROR',
+          message: 'Failed to delete associated cards. Deck was not modified.',
+        },
+      });
+    }
+
+    // Step 2: Delete the deck itself.
+    // If this fails, cards are already gone — the deck is now empty.
+    // This is a documented limitation of the non-transactional approach.
+    try {
+      await Deck.findByIdAndDelete(deck._id);
+    } catch (deckDeleteErr) {
+      return res.status(500).json({
+        error: {
+          code: 'DELETE_PARTIAL',
+          message:
+            'Cards were removed but deck deletion failed. The deck is now empty. Please retry.',
+        },
+      });
+    }
 
     return res.status(200).json({
       message: 'Deck and associated cards deleted successfully',
@@ -204,7 +291,8 @@ export async function deleteDeck(req, res, next) {
 }
 
 export default {
-  getDecks,
+  listDecks,
+  createDeck,
   getDeckById,
   updateDeck,
   deleteDeck,

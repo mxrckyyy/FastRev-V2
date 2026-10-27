@@ -299,7 +299,7 @@ describe('POST /api/generate & Rate Limiting', () => {
     });
 
     test('sanitizes and bounds error messages in generation ledger', async () => {
-      const sensitiveError = 'Failed with Bearer secret-token-12345 and mongodb+srv://admin:pass@cluster.mongodb.net/test';
+      const sensitiveError = 'Failed with Bearer secret-token-12345 and mongodb://invalid.invalid/test';
       jest.spyOn(aiService, 'generateFlashcards').mockRejectedValue(
         new Error(sensitiveError)
       );
