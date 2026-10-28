@@ -55,7 +55,7 @@ export default function Dashboard() {
           <p className="text-sm text-muted-foreground">Manage your flashcard decks.</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={fetchDecks} disabled={loading} className="min-h-[36px]">
+          <Button variant="outline" size="sm" onClick={fetchDecks} disabled={loading} className="min-h-[44px] px-4">
             <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
@@ -128,6 +128,7 @@ export default function Dashboard() {
                   size="sm"
                   onClick={() => handleDelete(deck.id)}
                   disabled={deletingId === deck.id}
+                  className="min-h-[44px] min-w-[44px]"
                 >
                   {deletingId === deck.id ? (
                     <Loader2 className="h-4 w-4 animate-spin" />

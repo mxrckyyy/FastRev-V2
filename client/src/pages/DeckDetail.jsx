@@ -124,7 +124,7 @@ export default function DeckDetail() {
             {cards.length} {cards.length === 1 ? 'card' : 'cards'}
           </p>
         </div>
-        <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting} className="min-h-[36px]">
+        <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting} className="min-h-[44px]">
           {deleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
           {deleting ? 'Deleting...' : 'Delete deck'}
         </Button>
@@ -179,7 +179,7 @@ export default function DeckDetail() {
               <Button
                 variant={showAnswer ? 'outline' : 'default'}
                 onClick={() => setShowAnswer((s) => !s)}
-                className="w-full sm:w-auto"
+                className="min-h-[44px] w-full sm:w-auto"
               >
                 {showAnswer ? (
                   <>
@@ -198,17 +198,17 @@ export default function DeckDetail() {
 
           {/* Navigation */}
           <div className="flex items-center justify-between gap-3">
-            <Button variant="outline" onClick={goPrev} disabled={isFirst} className="flex-1 sm:flex-none">
+            <Button variant="outline" onClick={goPrev} disabled={isFirst} className="min-h-[44px] flex-1 sm:flex-none">
               <ChevronLeft className="mr-1 h-4 w-4" />
               Previous
             </Button>
 
             {isLast ? (
-              <Button variant="secondary" onClick={() => { setCurrentIndex(0); setShowAnswer(false); }} className="flex-1 sm:flex-none">
+              <Button variant="secondary" onClick={() => { setCurrentIndex(0); setShowAnswer(false); }} className="min-h-[44px] flex-1 sm:flex-none">
                 Restart
               </Button>
             ) : (
-              <Button onClick={goNext} className="flex-1 sm:flex-none">
+              <Button onClick={goNext} className="min-h-[44px] flex-1 sm:flex-none">
                 Next
                 <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
