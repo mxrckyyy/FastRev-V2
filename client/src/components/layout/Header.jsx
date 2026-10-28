@@ -79,6 +79,7 @@ export default function Header() {
           onClick={() => setMobileOpen((prev) => !prev)}
           aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={mobileOpen}
+          aria-controls="mobile-nav"
         >
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
@@ -87,7 +88,7 @@ export default function Header() {
       {/* Mobile drawer */}
       {mobileOpen && (
         <div className="border-t bg-background md:hidden">
-          <nav className="mx-auto max-w-6xl space-y-1 px-4 py-3 sm:px-6">
+          <nav id="mobile-nav" className="mx-auto max-w-6xl space-y-1 px-4 py-3 sm:px-6">
             {navLinks.map((link) => (
               <Link
                 key={link.to}

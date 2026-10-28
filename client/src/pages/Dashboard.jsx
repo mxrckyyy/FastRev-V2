@@ -129,6 +129,7 @@ export default function Dashboard() {
                   onClick={() => handleDelete(deck.id)}
                   disabled={deletingId === deck.id}
                   className="min-h-[44px] min-w-[44px]"
+                  aria-label={`Delete deck ${deck.title}`}
                 >
                   {deletingId === deck.id ? (
                     <Loader2 className="h-4 w-4 animate-spin" />

@@ -23,8 +23,8 @@ export default function Landing() {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>Foundation ready</CardTitle>
-          <CardDescription>Application features are implemented in subsequent phases.</CardDescription>
+          <CardTitle>How it works</CardTitle>
+          <CardDescription>Paste study material, generate flashcards, then review and save your own decks.</CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
