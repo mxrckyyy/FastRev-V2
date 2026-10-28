@@ -102,20 +102,20 @@ export async function createDeck(req, res, next) {
 
 /**
  * Retrieve one deck and all its flashcards for the authenticated user.
- * GET /api/decks/:deckId
+ * GET /api/decks/:id
  */
 export async function getDeckById(req, res, next) {
   try {
-    const { deckId } = req.params;
+    const id = req.params.id;
     const userId = req.user.userId;
 
-    if (!mongoose.isValidObjectId(deckId)) {
+    if (!mongoose.isValidObjectId(id)) {
       return res.status(400).json({
         error: { code: 'INVALID_ID', message: 'Invalid deck ID format' },
       });
     }
 
-    const deck = await Deck.findOne({ _id: deckId, userId }).lean();
+    const deck = await Deck.findOne({ _id: id, userId }).lean();
 
     if (!deck) {
       return res.status(404).json({
@@ -149,81 +149,8 @@ export async function getDeckById(req, res, next) {
 }
 
 /**
- * Update deck metadata (title).
- * PATCH /api/decks/:deckId
- */
-export async function updateDeck(req, res, next) {
-  try {
-    const { deckId } = req.params;
-    const userId = req.user.userId;
-
-    if (!mongoose.isValidObjectId(deckId)) {
-      return res.status(400).json({
-        error: { code: 'INVALID_ID', message: 'Invalid deck ID format' },
-      });
-    }
-
-    const { title } = req.body || {};
-
-    if (title === undefined || title === null) {
-      return res.status(400).json({
-        error: { code: 'VALIDATION_ERROR', message: 'Title is required for update' },
-      });
-    }
-
-    if (typeof title !== 'string') {
-      return res.status(400).json({
-        error: { code: 'VALIDATION_ERROR', message: 'Title must be a string' },
-      });
-    }
-
-    const trimmedTitle = title.trim();
-    if (!trimmedTitle) {
-      return res.status(400).json({
-        error: { code: 'VALIDATION_ERROR', message: 'Title cannot be empty' },
-      });
-    }
-
-    if (trimmedTitle.length > MAX_TITLE_LENGTH) {
-      return res.status(400).json({
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: `Title must be at most ${MAX_TITLE_LENGTH} characters`,
-        },
-      });
-    }
-
-    const updatedDeck = await Deck.findOneAndUpdate(
-      { _id: deckId, userId },
-      { $set: { title: trimmedTitle } },
-      { new: true, runValidators: true }
-    ).lean();
-
-    if (!updatedDeck) {
-      return res.status(404).json({
-        error: { code: 'NOT_FOUND', message: 'Deck not found' },
-      });
-    }
-
-    const cardCount = await Card.countDocuments({ deckId: updatedDeck._id, userId });
-
-    return res.status(200).json({
-      deck: {
-        id: updatedDeck._id.toString(),
-        title: updatedDeck.title,
-        cardCount,
-        createdAt: updatedDeck.createdAt,
-        updatedAt: updatedDeck.updatedAt,
-      },
-    });
-  } catch (err) {
-    next(err);
-  }
-}
-
-/**
  * Delete a deck and all associated cards belonging to the authenticated user.
- * DELETE /api/decks/:deckId
+ * DELETE /api/decks/:id
  *
  * Deletion order: cards first, then deck.
  * - If card deletion fails, the deck is not modified (consistent state).
@@ -235,17 +162,17 @@ export async function updateDeck(req, res, next) {
  */
 export async function deleteDeck(req, res, next) {
   try {
-    const { deckId } = req.params;
+    const id = req.params.id;
     const userId = req.user.userId;
 
-    if (!mongoose.isValidObjectId(deckId)) {
+    if (!mongoose.isValidObjectId(id)) {
       return res.status(400).json({
         error: { code: 'INVALID_ID', message: 'Invalid deck ID format' },
       });
     }
 
     // Verify ownership before any mutation
-    const deck = await Deck.findOne({ _id: deckId, userId });
+    const deck = await Deck.findOne({ _id: id, userId });
 
     if (!deck) {
       return res.status(404).json({
@@ -283,7 +210,7 @@ export async function deleteDeck(req, res, next) {
 
     return res.status(200).json({
       message: 'Deck and associated cards deleted successfully',
-      deckId,
+      deckId: id,
     });
   } catch (err) {
     next(err);
@@ -294,6 +221,5 @@ export default {
   listDecks,
   createDeck,
   getDeckById,
-  updateDeck,
   deleteDeck,
 };

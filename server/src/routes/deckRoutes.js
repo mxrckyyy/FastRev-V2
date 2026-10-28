@@ -1,11 +1,5 @@
 import { Router } from 'express';
-import {
-  listDecks,
-  createDeck,
-  getDeckById,
-  updateDeck,
-  deleteDeck,
-} from '../controllers/deckController.js';
+import { listDecks, createDeck, getDeckById, deleteDeck } from '../controllers/deckController.js';
 import { authenticate } from '../middleware/auth.js';
 
 const router = Router();
@@ -15,8 +9,7 @@ router.use(authenticate);
 
 router.get('/', listDecks);
 router.post('/', createDeck);
-router.get('/:deckId', getDeckById);
-router.patch('/:deckId', updateDeck);
-router.delete('/:deckId', deleteDeck);
+router.get('/:id', getDeckById);
+router.delete('/:id', deleteDeck);
 
 export default router;

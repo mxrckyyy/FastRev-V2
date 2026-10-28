@@ -174,9 +174,9 @@ All deck management endpoints require a valid Bearer JWT via `authenticate` midd
     }
     ```
 
-- **`GET /api/decks/:deckId`**:
-  - Validates `deckId` as a valid MongoDB ObjectId (400 if malformed).
-  - Retrieves deck only if owned by caller (`_id: deckId, userId: req.user.userId`); returns 404 if missing or owned by another user.
+- **`GET /api/decks/:id`**:
+  - Validates `id` as a valid MongoDB ObjectId (400 if malformed).
+  - Retrieves deck only if owned by caller (`_id: id, userId: req.user.userId`); returns 404 if missing or owned by another user.
   - Retrieves all cards belonging to the deck and user (`deckId: deck._id, userId: req.user.userId`).
   - Response (200 OK):
     ```json
@@ -199,28 +199,28 @@ All deck management endpoints require a valid Bearer JWT via `authenticate` midd
     }
     ```
 
-- **`PATCH /api/decks/:deckId`**:
-  - Validates `deckId` as a valid ObjectId (400 if malformed).
-  - Validates `title`: required string, trimmed, 1 to 120 characters. Rejects empty, whitespace-only, non-string, or >120 characters with 400 Bad Request.
-  - Protected fields (`userId`, `_id`, timestamps) cannot be modified or reassigned.
-  - Updates title only for caller's deck; returns 404 if missing or unauthorized.
-  - Response (200 OK):
+- **`POST /api/decks`**:
+  - Creates a new deck for the authenticated user.
+  - Validates `title`: required string, trimmed, 1 to 120 characters. Rejects missing, empty, whitespace-only, non-string, or >120 characters with 400 Bad Request.
+  - `userId` is always derived from the JWT; client-supplied `userId` or `_id` are ignored.
+  - Response (201 Created):
     ```json
     {
       "deck": {
         "id": "<deck-id>",
-        "title": "Advanced Cellular Biology",
-        "cardCount": 2,
+        "title": "My New Deck",
+        "cardCount": 0,
         "createdAt": "2026-10-27T...",
         "updatedAt": "2026-10-27T..."
       }
     }
     ```
 
-- **`DELETE /api/decks/:deckId`**:
-  - Validates `deckId` as a valid ObjectId (400 if malformed).
-  - Verifies ownership (`_id: deckId, userId: req.user.userId`); returns 404 if missing or unauthorized.
-  - Deletes all associated cards (`Card.deleteMany({ deckId, userId })`) and the deck (`Deck.findByIdAndDelete(deckId)`).
+- **`DELETE /api/decks/:id`**:
+  - Validates `id` as a valid ObjectId (400 if malformed).
+  - Verifies ownership (`_id: id, userId: req.user.userId`); returns 404 if missing or unauthorized.
+  - Deletes all associated cards (`Card.deleteMany({ deckId, userId })`) then the deck (`Deck.findByIdAndDelete(id)`).
+  - Deletion order: cards first, then deck. If card deletion fails, the deck is not modified. If deck deletion fails after cards are deleted, the client receives a 500 with code `DELETE_PARTIAL`; the deck is now empty and may be retried. This is a documented limitation of the non-transactional approach.
   - Cards and decks belonging to other users remain completely unaffected.
   - Response (200 OK):
     ```json
@@ -360,12 +360,12 @@ See master prompt Phases 4,5,6,10.
 - Run from `server/`: `npm test`.
 - Uses `mongodb-memory-server`; no external MongoDB or provider keys required.
 - Jest runs in ESM mode via `node --experimental-vm-modules`.
-- Current coverage: 161 tests across 13 test suites:
+- Current coverage: 166 tests across 13 test suites:
   - Models: User (8), Deck (8), Card (14), Generation (12)
   - Auth: Register (11), Login (9), Middleware & JWT (9)
   - AI Service: Providers (13), FallbackEngine (8), ResponseParser (17), CooldownManager (9)
   - Generation: Endpoint & Rate Limiting (18)
-  - Decks: Management API (25)
+  - Decks: Management API (30)
 
 ## Privacy constraints for Generation records
 

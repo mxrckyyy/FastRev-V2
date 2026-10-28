@@ -3,7 +3,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 export default function Dashboard() {
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Dashboard</h1>
+        <p className="text-sm text-muted-foreground">Manage your flashcard decks.</p>
+      </div>
       <Card>
         <CardHeader>
           <CardTitle>Your decks</CardTitle>
