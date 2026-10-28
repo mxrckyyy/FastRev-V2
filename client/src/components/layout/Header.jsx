@@ -1,20 +1,33 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { BookOpen, LogOut, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/lib/auth';
 
 // Application header with responsive mobile navigation.
 export default function Header() {
+  const { isAuthenticated, user, logout } = useAuth();
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
 
   const navLinks = [
     { to: '/', label: 'Home' },
-    { to: '/dashboard', label: 'Dashboard' },
-    { to: '/generate', label: 'Generate' },
+    ...(isAuthenticated
+      ? [
+          { to: '/dashboard', label: 'Dashboard' },
+          { to: '/generate', label: 'Generate' },
+        ]
+      : []),
   ];
 
   const isActive = (path) => location.pathname === path;
+
+  function handleLogout() {
+    logout();
+    navigate('/', { replace: true });
+    setMobileOpen(false);
+  }
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -39,12 +52,24 @@ export default function Header() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          <Button variant="ghost" size="sm" asChild>
-            <Link to="/login">Log in</Link>
-          </Button>
-          <Button size="sm" asChild>
-            <Link to="/register">Sign up</Link>
-          </Button>
+          {isAuthenticated ? (
+            <>
+              <span className="text-sm text-muted-foreground">{user?.email}</span>
+              <Button variant="ghost" size="sm" onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Log out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/login">Log in</Link>
+              </Button>
+              <Button size="sm" asChild>
+                <Link to="/register">Sign up</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile menu toggle */}
@@ -77,18 +102,28 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
-            <div className="flex gap-2 pt-2">
-              <Button variant="ghost" size="sm" className="flex-1" asChild>
-                <Link to="/login" onClick={() => setMobileOpen(false)}>
-                  Log in
-                </Link>
-              </Button>
-              <Button size="sm" className="flex-1" asChild>
-                <Link to="/register" onClick={() => setMobileOpen(false)}>
-                  Sign up
-                </Link>
-              </Button>
-            </div>
+            {isAuthenticated ? (
+              <div className="pt-2">
+                <p className="px-3 py-1 text-xs text-muted-foreground">{user?.email}</p>
+                <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Log out
+                </Button>
+              </div>
+            ) : (
+              <div className="flex gap-2 pt-2">
+                <Button variant="ghost" size="sm" className="flex-1" asChild>
+                  <Link to="/login" onClick={() => setMobileOpen(false)}>
+                    Log in
+                  </Link>
+                </Button>
+                <Button size="sm" className="flex-1" asChild>
+                  <Link to="/register" onClick={() => setMobileOpen(false)}>
+                    Sign up
+                  </Link>
+                </Button>
+              </div>
+            )}
           </nav>
         </div>
       )}
