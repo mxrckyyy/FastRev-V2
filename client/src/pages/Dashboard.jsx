@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Plus, Trash2, BookOpen, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,8 +7,7 @@ import { useAuth } from '@/lib/auth';
 import { apiRequest } from '@/lib/api';
 
 export default function Dashboard() {
-  const { token, logout } = useAuth();
-  const navigate = useNavigate();
+  const { token } = useAuth();
 
   const [decks, setDecks] = useState([]);
   const [loading, setLoading] = useState(true);
