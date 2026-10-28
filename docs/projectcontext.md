@@ -76,7 +76,7 @@ See master prompt Phase 12.
 
 ## Current phase
 
-Phase 6 — Deck management API (complete, pending approval to proceed to Phase 7).
+Phase 10 - Final release readiness, visual QA, and deployment preparation (in progress).
 
 ## Completed work
 
@@ -87,14 +87,18 @@ Phase 6 — Deck management API (complete, pending approval to proceed to Phase 
 - Phase 4: AI provider adapters (Groq, Cerebras, Gemini) adhering to a common interface, centralized FallbackEngine with strict Groq -> Cerebras -> Gemini priority, in-memory CooldownManager (60s on 429), timeout handling via AbortController (15s default), bounded retries for transient errors, flashcard response parsing/validation (`parseFlashcards`), and 47 automated unit/integration tests (118 total tests passing).
 - Phase 5: protected generation endpoint (`POST /api/generate`), request validation (max 20,000 chars material, title, card count), Generation ledger lifecycle (`reserved` -> `completed`/`failed`), Deck and Card persistence with compensating cleanup on partial failures, in-memory rate limiting (1 request per 5 seconds and 30 per rolling hour per user), error sanitization (no secret leakage), and 18 automated integration tests (136 total tests passing).
 - Phase 6: deck management API (`GET /api/decks`, `POST /api/decks`, `GET /api/decks/:id`, `DELETE /api/decks/:id`) with strict user ownership scoping, cardCount aggregation, non-leaking 404 responses, associated card cleanup on deletion, input validation (1–120 char title), compensating failure handling for non-transactional deletion, and 30 automated integration tests (166 total tests passing).
+- Phase 7-9: frontend authentication, dashboard, generation, and deck study experience implemented (Landing, Login, Register, Dashboard, Generate, DeckDetail, protected routes, API client, responsive header/mobile nav).
+- Phase 10 (in progress): baseline verification, visual/accessibility/security/deployment review; contrast adjustment, accessibility labels, DB connection robustness, documentation.
 
 ## Remaining work
 
-- README.md updates, validation of subsequent phases.
-- Phases 7–12 (frontend authentication & dashboard, generation interface, deck study experience, etc.).
+- Configure production environment variables and MongoDB Atlas without committing secrets.
+- Complete a deployed smoke test for authentication, generation, studying, deck deletion, and not-found handling.
+- Review release changes and close documented security/accessibility limitations as appropriate.
 
 ## Known risks and blockers
 
-- No git user configured globally (set local config).
-- Provider model IDs and current APIs must be verified via official docs before Phase 4.
-- Free-tier availability and hosting terms may change.
+- Authentication endpoints do not currently have a dedicated rate limiter.
+- JWTs are stored in browser local storage; this retains the documented XSS trade-off.
+- Production environment configuration and deployed smoke tests have not been verified.
+- Free-tier provider availability and hosting terms may change.

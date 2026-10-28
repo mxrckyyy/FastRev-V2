@@ -21,9 +21,9 @@ fastrev/
 └── server/        # Express + Mongoose backend
 ```
 
-## Planned development phases
+## Project status
 
-See `docs/projectcontext.md`. Current phase: Phase 0 (repository audit, documentation, file structure).
+Frontend authentication, dashboard, flashcard generation, and deck study flows are implemented. The project is in Phase 10: release-readiness verification. See `docs/projectcontext.md` and `docs/release-readiness.md` for current status and known deployment requirements.
 
 ## Local development setup
 
@@ -39,7 +39,7 @@ Backend:
 ```
 cd server
 npm install
-npm start
+npm run dev
 ```
 Runs on http://localhost:5000 (or PORT). Set environment variables in server/.env (see .env.example).
 
@@ -47,18 +47,28 @@ Health check: GET http://localhost:5000/api/health
 
 ## Environment configuration
 
-Server (planned): `MONGO_URI`, `JWT_SECRET`, `FRONTEND_ORIGIN`, `GROQ_API_KEY`, `CEREBRAS_API_KEY`, `GEMINI_API_KEY`, `PORT`.
-Client (planned): `VITE_API_URL`.
+Server: `MONGO_URI`, `JWT_SECRET`, `FRONTEND_ORIGIN`, optional provider keys (`GROQ_API_KEY`, `CEREBRAS_API_KEY`, `GEMINI_API_KEY`), and `PORT`. See `server/.env.example`.
+Client: `VITE_API_URL`. See `client/.env.example`.
 
-`.env.example` files will be added with Phase 1/11.
+Do not commit real credentials. AI provider keys must remain server-side.
 
 ## Testing commands
 
-To be established with Phase 1+.
+Run the backend Jest and Supertest suite:
+```
+cd server
+npm test
+```
+
+Create a production frontend build:
+```
+cd client
+npm run build
+```
 
 ## Deployment overview
 
-Frontend: Vercel. Backend: long-running Node host. Database: MongoDB Atlas. Details in Phase 11.
+Frontend: Vercel. Backend: long-running Node host. Database: MongoDB Atlas. Deployment still requires production environment variables and a manual smoke test; see `docs/release-readiness.md`.
 
 ## Documentation links
 
@@ -68,3 +78,4 @@ Frontend: Vercel. Backend: long-running Node host. Database: MongoDB Atlas. Deta
 - `docs/architecture.md` — architecture.
 - `docs/projectcontext.md` — requirements and status.
 - `docs/system-design.md` — system design.
+- `docs/release-readiness.md` — Phase 10 verification and deployment checklist.

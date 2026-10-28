@@ -51,7 +51,7 @@ export default function Landing() {
                 <span className="preview-step">01</span>
                 Your notes
               </div>
-              <div className="preview-note">
+              <div className="preview-note" aria-hidden="true">
                 <span className="preview-note-line preview-note-line-short" />
                 <span className="preview-note-line" />
                 <span className="preview-note-line" />

@@ -15,9 +15,9 @@ export default function Header() {
     { to: '/', label: 'Home' },
     ...(isAuthenticated
       ? [
-          { to: '/dashboard', label: 'Dashboard' },
-          { to: '/generate', label: 'Generate' },
-        ]
+        { to: '/dashboard', label: 'Dashboard' },
+        { to: '/generate', label: 'Generate' },
+      ]
       : []),
   ];
 
@@ -95,7 +95,7 @@ export default function Header() {
           onClick={() => setMobileOpen((prev) => !prev)}
           aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={mobileOpen}
-          aria-controls="mobile-navigation"
+          aria-controls="mobile-nav"
         >
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
@@ -103,17 +103,16 @@ export default function Header() {
 
       {mobileOpen && (
         <div className="border-t bg-background md:hidden">
-          <nav id="mobile-navigation" className="mx-auto max-w-7xl space-y-1 px-4 py-3 sm:px-6" aria-label="Mobile navigation">
+          <nav id="mobile-nav" className="mx-auto max-w-7xl space-y-1 px-4 py-3 sm:px-6" aria-label="Mobile navigation">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
                 aria-current={isActive(link.to) ? 'page' : undefined}
-                className={`flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-medium transition-colors active:scale-[0.99] ${
-                  isActive(link.to)
+                className={`flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-medium transition-colors active:scale-[0.99] ${isActive(link.to)
                     ? 'bg-secondary text-secondary-foreground'
                     : 'text-foreground hover:bg-accent'
-                }`}
+                  }`}
               >
                 {link.label}
               </Link>
