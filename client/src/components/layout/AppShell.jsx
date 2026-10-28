@@ -4,8 +4,9 @@ import Header from './Header';
 export default function AppShell({ children }) {
   return (
     <div className="flex min-h-screen flex-col">
+      <a className="skip-link" href="#main-content">Skip to content</a>
       <Header />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
         {children}
       </main>
     </div>

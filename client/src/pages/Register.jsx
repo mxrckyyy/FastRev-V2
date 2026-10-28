@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertCircle, LoaderCircle } from 'lucide-react';
+import AuthLayout from '@/components/auth/AuthLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,22 +14,26 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
 
-    if (!email.trim()) {
-      setError('Email is required');
-      return;
+    const nextFieldErrors = {};
+    const emailInput = e.currentTarget.querySelector('input[type="email"]');
+    if (!email.trim() || !emailInput.validity.valid) {
+      nextFieldErrors.email = 'Enter a valid email address.';
     }
     if (!password) {
-      setError('Password is required');
-      return;
+      nextFieldErrors.password = 'Enter a password.';
+    } else if (password.length < 8) {
+      nextFieldErrors.password = 'Use at least 8 characters.';
     }
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters');
+    setFieldErrors(nextFieldErrors);
+    if (Object.keys(nextFieldErrors).length > 0) {
+      (nextFieldErrors.email ? emailInput : e.currentTarget.querySelector('input[type="password"]')).focus();
       return;
     }
 
@@ -44,57 +49,67 @@ export default function Register() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-md">
-      <Card>
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-xl sm:text-2xl">Create account</CardTitle>
-          <CardDescription>Start building your flashcard decks.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
-                {error}
-              </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="h-10"
-                autoComplete="email"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="h-10"
-                autoComplete="new-password"
-                required
-              />
-              <p className="text-xs text-muted-foreground">At least 8 characters.</p>
-            </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Creating account...' : 'Create account'}
-            </Button>
-            <p className="text-center text-sm text-muted-foreground">
-              Already have an account?{' '}
-              <Link to="/login" className="font-medium text-primary hover:underline">
-                Log in
-              </Link>
-            </p>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+    <AuthLayout
+      title="Create your account"
+      description="Save your reviewed flashcards and come back to study."
+      asideTitle="Make your notes easier to remember."
+      asideDescription="Turn the material you already have into a study deck, one reviewed card at a time."
+    >
+      <form onSubmit={handleSubmit} className="auth-form" noValidate aria-busy={loading}>
+        {error && <div className="auth-error" role="alert">{error}</div>}
+        <div className="auth-field">
+          <Label htmlFor="register-email">Email</Label>
+          <Input
+            id="register-email"
+            name="email"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setError('');
+              setFieldErrors((current) => ({ ...current, email: '' }));
+            }}
+            className="auth-input"
+            autoComplete="email"
+            autoCapitalize="none"
+            aria-invalid={Boolean(fieldErrors.email)}
+            aria-describedby={fieldErrors.email ? 'register-email-error' : undefined}
+            required
+          />
+          {fieldErrors.email && <p className="auth-field-error" id="register-email-error"><AlertCircle aria-hidden="true" />{fieldErrors.email}</p>}
+        </div>
+        <div className="auth-field">
+          <Label htmlFor="register-password">Password</Label>
+          <Input
+            id="register-password"
+            name="password"
+            type="password"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setError('');
+              setFieldErrors((current) => ({ ...current, password: '' }));
+            }}
+            className="auth-input"
+            autoComplete="new-password"
+            aria-invalid={Boolean(fieldErrors.password)}
+            aria-describedby={fieldErrors.password ? 'register-password-error' : 'register-password-help'}
+            required
+          />
+          {fieldErrors.password
+            ? <p className="auth-field-error" id="register-password-error"><AlertCircle aria-hidden="true" />{fieldErrors.password}</p>
+            : <p className="auth-field-help" id="register-password-help">Use at least 8 characters.</p>}
+        </div>
+        <Button type="submit" size="lg" className="auth-submit" disabled={loading}>
+          {loading && <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />}
+          {loading ? 'Creating account' : 'Create account'}
+        </Button>
+        <p className="auth-switch">
+          Already have an account?{' '}
+          <Link to="/login">Log in</Link>
+        </p>
+      </form>
+    </AuthLayout>
   );
 }

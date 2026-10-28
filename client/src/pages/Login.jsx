@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertCircle, LoaderCircle } from 'lucide-react';
+import AuthLayout from '@/components/auth/AuthLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,18 +16,24 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
 
-    if (!email.trim()) {
-      setError('Email is required');
-      return;
+    const nextFieldErrors = {};
+    const emailInput = e.currentTarget.querySelector('input[type="email"]');
+    if (!email.trim() || !emailInput.validity.valid) {
+      nextFieldErrors.email = 'Enter a valid email address.';
     }
     if (!password) {
-      setError('Password is required');
+      nextFieldErrors.password = 'Enter your password.';
+    }
+    setFieldErrors(nextFieldErrors);
+    if (Object.keys(nextFieldErrors).length > 0) {
+      (nextFieldErrors.email ? emailInput : e.currentTarget.querySelector('input[type="password"]')).focus();
       return;
     }
 
@@ -42,56 +49,65 @@ export default function Login() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-md">
-      <Card>
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-xl sm:text-2xl">Log in</CardTitle>
-          <CardDescription>Enter your credentials to access your decks.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
-                {error}
-              </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="h-10"
-                autoComplete="email"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="h-10"
-                autoComplete="current-password"
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Logging in...' : 'Log in'}
-            </Button>
-            <p className="text-center text-sm text-muted-foreground">
-              Don&apos;t have an account?{' '}
-              <Link to="/register" className="font-medium text-primary hover:underline">
-                Sign up
-              </Link>
-            </p>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+    <AuthLayout
+      title="Welcome back"
+      description="Log in to pick up where your studying left off."
+      asideTitle="Your next study session is close."
+      asideDescription="Return to your saved decks, keep reviewing, and make progress at your own pace."
+    >
+      <form onSubmit={handleSubmit} className="auth-form" noValidate aria-busy={loading}>
+        {error && <div className="auth-error" role="alert">{error}</div>}
+        <div className="auth-field">
+          <Label htmlFor="login-email">Email</Label>
+          <Input
+            id="login-email"
+            name="email"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setError('');
+              setFieldErrors((current) => ({ ...current, email: '' }));
+            }}
+            className="auth-input"
+            autoComplete="email"
+            autoCapitalize="none"
+            aria-invalid={Boolean(fieldErrors.email)}
+            aria-describedby={fieldErrors.email ? 'login-email-error' : undefined}
+            required
+          />
+          {fieldErrors.email && <p className="auth-field-error" id="login-email-error"><AlertCircle aria-hidden="true" />{fieldErrors.email}</p>}
+        </div>
+        <div className="auth-field">
+          <Label htmlFor="login-password">Password</Label>
+          <Input
+            id="login-password"
+            name="password"
+            type="password"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setError('');
+              setFieldErrors((current) => ({ ...current, password: '' }));
+            }}
+            className="auth-input"
+            autoComplete="current-password"
+            aria-invalid={Boolean(fieldErrors.password)}
+            aria-describedby={fieldErrors.password ? 'login-password-error' : undefined}
+            required
+          />
+          {fieldErrors.password && <p className="auth-field-error" id="login-password-error"><AlertCircle aria-hidden="true" />{fieldErrors.password}</p>}
+        </div>
+        <Button type="submit" size="lg" className="auth-submit" disabled={loading}>
+          {loading && <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />}
+          {loading ? 'Logging in' : 'Log in'}
+        </Button>
+        <p className="auth-switch">
+          Don&apos;t have an account?{' '}
+          <Link to="/register">Create one</Link>
+        </p>
+      </form>
+    </AuthLayout>
   );
 }

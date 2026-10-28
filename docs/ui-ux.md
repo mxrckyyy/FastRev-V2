@@ -14,6 +14,7 @@ FastRev serves students who want to convert study material into flashcards. The 
 
 - Unauthenticated visitors see login/register entry points and marketing content.
 - Authenticated users see Dashboard, Generate, account menu, logout.
+- On desktop, public Home navigation is grouped with the login and signup actions; the FastRev brand mark remains the persistent home link.
 - Protected routes redirect unauthenticated users to login.
 - Expired/invalid tokens trigger logout and redirect with a clear message.
 
@@ -24,6 +25,8 @@ FastRev serves students who want to convert study material into flashcards. The 
 - One primary action per screen region.
 - Calm academic palette; avoid neon/glow overload.
 - Honest messaging about free-provider availability.
+- Landing and authentication surfaces use a responsive, mobile-first layout with a single green action accent.
+- Landing communicates the review-before-save workflow with an illustrative card preview; the example is not presented as generated or saved user content.
 
 ## Visual hierarchy
 
@@ -53,6 +56,10 @@ FastRev serves students who want to convert study material into flashcards. The 
 
 - sm 640, md 768, lg 1024, xl 1280.
 - Mobile-first layouts; stack cards; full-width inputs on small screens.
+- Public navigation uses a 44px mobile menu control and full-width, touch-sized route actions.
+- The mobile navigation closes after route changes and supports Escape; a skip-to-content link is available to keyboard users.
+- The landing hero and sign-in/sign-up forms become single-column layouts below 768px; account forms keep labels, errors, and actions in a clear vertical sequence.
+- Landing actions remain side-by-side when they fit and stack on narrow phones. The study preview also collapses to one column on very narrow screens.
 
 ## Component standards
 
@@ -73,6 +80,9 @@ FastRev serves students who want to convert study material into flashcards. The 
 - Answer reveal via click or Enter/Space.
 - Reduced-motion support (`prefers-reduced-motion`).
 - Screen-reader-friendly labels and live regions for async status.
+- Account fields expose inline validation through `aria-invalid` and `aria-describedby`; pending submit actions are disabled and announced with `aria-busy`.
+- Invalid account fields receive focus after submission so users can correct the first error without searching the form.
+- Interactive mobile navigation controls have accessible names, expanded state, and current-page semantics.
 
 ## Keyboard navigation
 
