@@ -8,31 +8,40 @@ import Dashboard from '@/pages/Dashboard';
 import Generate from '@/pages/Generate';
 import DeckDetail from '@/pages/DeckDetail';
 import NotFound from '@/pages/NotFound';
+import ErrorFallback from '@/components/ErrorFallback';
+
+const errorElement = <AppShell><ErrorFallback /></AppShell>;
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <AppShell><Landing /></AppShell>,
+    errorElement,
   },
   {
     path: '/login',
     element: <AppShell><Login /></AppShell>,
+    errorElement,
   },
   {
     path: '/register',
     element: <AppShell><Register /></AppShell>,
+    errorElement,
   },
   {
     path: '/dashboard',
     element: <AppShell><ProtectedRoute><Dashboard /></ProtectedRoute></AppShell>,
+    errorElement,
   },
   {
     path: '/generate',
     element: <AppShell><ProtectedRoute><Generate /></ProtectedRoute></AppShell>,
+    errorElement,
   },
   {
     path: '/decks/:id',
     element: <AppShell><ProtectedRoute><DeckDetail /></ProtectedRoute></AppShell>,
+    errorElement,
   },
   {
     path: '*',

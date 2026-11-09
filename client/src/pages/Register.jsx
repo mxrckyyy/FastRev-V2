@@ -1,18 +1,21 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { AlertCircle, LoaderCircle } from 'lucide-react';
+import { AlertCircle, LoaderCircle, Eye, EyeOff } from 'lucide-react';
 import AuthLayout from '@/components/auth/AuthLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/lib/auth';
+import { useToast } from '@/lib/toast';
 
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -40,6 +43,7 @@ export default function Register() {
     setLoading(true);
     try {
       await register(email.trim(), password);
+      toast({ title: 'Account created', description: 'Welcome to FastRev!', variant: 'success' });
       navigate('/dashboard', { replace: true });
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.');
@@ -81,22 +85,32 @@ export default function Register() {
         </div>
         <div className="auth-field">
           <Label htmlFor="register-password">Password</Label>
-          <Input
-            id="register-password"
-            name="password"
-            type="password"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              setError('');
-              setFieldErrors((current) => ({ ...current, password: '' }));
-            }}
-            className="auth-input"
-            autoComplete="new-password"
-            aria-invalid={Boolean(fieldErrors.password)}
-            aria-describedby={fieldErrors.password ? 'register-password-error' : 'register-password-help'}
-            required
-          />
+          <div className="relative">
+            <Input
+              id="register-password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setError('');
+                setFieldErrors((current) => ({ ...current, password: '' }));
+              }}
+              className="auth-input pr-10"
+              autoComplete="new-password"
+              aria-invalid={Boolean(fieldErrors.password)}
+              aria-describedby={fieldErrors.password ? 'register-password-error' : 'register-password-help'}
+              required
+            />
+            <button
+              type="button"
+              className="absolute right-1 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              onClick={() => setShowPassword((s) => !s)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
           {fieldErrors.password
             ? <p className="auth-field-error" id="register-password-error"><AlertCircle aria-hidden="true" />{fieldErrors.password}</p>
             : <p className="auth-field-help" id="register-password-help">Use at least 8 characters.</p>}

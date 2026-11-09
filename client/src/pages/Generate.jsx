@@ -5,13 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, AlertCircle, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
+import ErrorState from '@/components/ui/error-state';
 import { useAuth } from '@/lib/auth';
 import { apiRequest } from '@/lib/api';
+import { useToast } from '@/lib/toast';
 
 export default function Generate() {
   const { token } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const [material, setMaterial] = useState('');
   const [title, setTitle] = useState('');
@@ -39,7 +42,7 @@ export default function Generate() {
       if (title.trim()) body.title = title.trim();
       if (cardCount) {
         const count = parseInt(cardCount, 10);
-        if (!isNaN(count) && count >= 1 && count <= 50) {
+        if (!isNaN(count) && Number.isInteger(count) && count >= 1 && count <= 50) {
           body.cardCount = count;
         }
       }
@@ -50,16 +53,19 @@ export default function Generate() {
         token,
       });
 
+      toast({ title: 'Flashcards generated', description: `${data.cards.length} cards created.`, variant: 'success' });
+
       // Navigate to the newly created deck
       navigate(`/decks/${data.deck.id}`, { replace: true });
     } catch (err) {
       setError(err.message || 'Generation failed. Please try again.');
+      toast({ title: 'Generation failed', description: err.message || 'Please try again.', variant: 'error' });
     } finally {
       setLoading(false);
     }
   }
 
-  const charCount = material.length;
+  const charCount = material.trim().length;
   const isOverLimit = charCount > 20000;
 
   return (

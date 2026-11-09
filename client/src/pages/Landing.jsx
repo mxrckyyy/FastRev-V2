@@ -71,6 +71,7 @@ export default function Landing() {
                 A card to review
               </div>
               <article className="sample-flashcard">
+                <span className="sample-example-badge">Example</span>
                 <span className="sample-card-label">Question</span>
                 <h2>What is active recall?</h2>
                 <div className="sample-card-divider" />

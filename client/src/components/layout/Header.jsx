@@ -77,9 +77,6 @@ export default function Header() {
           ) : (
             <>
               <Button variant="ghost" size="sm" asChild>
-                <Link to="/" aria-current={isActive('/') ? 'page' : undefined}>Home</Link>
-              </Button>
-              <Button variant="ghost" size="sm" asChild>
                 <Link to="/login">Log in</Link>
               </Button>
               <Button size="sm" asChild>
@@ -108,6 +105,7 @@ export default function Header() {
               <Link
                 key={link.to}
                 to={link.to}
+                onClick={() => setMobileOpen(false)}
                 aria-current={isActive(link.to) ? 'page' : undefined}
                 className={`flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-medium transition-colors active:scale-[0.99] ${isActive(link.to)
                     ? 'bg-secondary text-secondary-foreground'

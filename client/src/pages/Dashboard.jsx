@@ -1,13 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Trash2, BookOpen, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import { Plus, Trash2, BookOpen, Loader2, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import LoadingState from '@/components/ui/loading-state';
+import ErrorState from '@/components/ui/error-state';
+import EmptyState from '@/components/ui/empty-state';
 import { useAuth } from '@/lib/auth';
 import { apiRequest } from '@/lib/api';
+import { useToast } from '@/lib/toast';
 
 export default function Dashboard() {
   const { token } = useAuth();
+  const { toast } = useToast();
 
   const [decks, setDecks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,8 +44,10 @@ export default function Dashboard() {
     try {
       await apiRequest(`/api/decks/${deckId}`, { method: 'DELETE', token });
       setDecks((prev) => prev.filter((d) => d.id !== deckId));
+      toast({ title: 'Deck deleted', description: 'The deck and its cards have been removed.', variant: 'success' });
     } catch (err) {
       setDeleteError(err.message || 'Failed to delete deck.');
+      toast({ title: 'Deletion failed', description: err.message || 'Failed to delete deck.', variant: 'error' });
     } finally {
       setDeletingId(null);
     }
@@ -73,39 +80,20 @@ export default function Dashboard() {
         </div>
       )}
 
-      {loading && (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      )}
+      {loading && <LoadingState message="Loading your decks..." />}
 
       {error && !loading && (
-        <Card>
-          <CardContent className="flex flex-col items-center gap-3 py-8 text-center">
-            <AlertCircle className="h-8 w-8 text-destructive" />
-            <p className="text-sm text-muted-foreground">{error}</p>
-            <Button variant="outline" size="sm" onClick={fetchDecks}>
-              Try again
-            </Button>
-          </CardContent>
-        </Card>
+        <ErrorState message={error} onRetry={fetchDecks} />
       )}
 
       {!loading && !error && decks.length === 0 && (
-        <Card>
-          <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
-            <BookOpen className="h-12 w-12 text-muted-foreground/50" />
-            <div className="space-y-1">
-              <p className="font-medium">No decks yet</p>
-              <p className="text-sm text-muted-foreground">
-                Generate flashcards from study material to create your first deck.
-              </p>
-            </div>
-            <Button asChild>
-              <Link to="/generate">Create your first deck</Link>
-            </Button>
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={BookOpen}
+          title="No decks yet"
+          description="Generate flashcards from study material to create your first deck."
+          actionLabel="Create your first deck"
+          actionTo="/generate"
+        />
       )}
 
       {!loading && !error && decks.length > 0 && (

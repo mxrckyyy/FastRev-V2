@@ -1,15 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Trash2, Loader2, AlertCircle, ChevronLeft, ChevronRight, Eye, EyeOff, BookOpen } from 'lucide-react';
+import { ArrowLeft, Trash2, Loader2, ChevronLeft, ChevronRight, Eye, EyeOff, BookOpen } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import LoadingState from '@/components/ui/loading-state';
+import ErrorState from '@/components/ui/error-state';
+import EmptyState from '@/components/ui/empty-state';
 import { useAuth } from '@/lib/auth';
 import { apiRequest } from '@/lib/api';
+import { useToast } from '@/lib/toast';
 
 export default function DeckDetail() {
   const { id } = useParams();
   const { token } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const [deck, setDeck] = useState(null);
   const [cards, setCards] = useState([]);
@@ -50,9 +55,11 @@ export default function DeckDetail() {
     setDeleting(true);
     try {
       await apiRequest(`/api/decks/${id}`, { method: 'DELETE', token });
+      toast({ title: 'Deck deleted', description: 'The deck and its cards have been removed.', variant: 'success' });
       navigate('/dashboard', { replace: true });
     } catch (err) {
       setError(err.message || 'Failed to delete deck.');
+      toast({ title: 'Deletion failed', description: err.message || 'Failed to delete deck.', variant: 'error' });
       setDeleting(false);
     }
   }
@@ -72,11 +79,7 @@ export default function DeckDetail() {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <LoadingState message="Loading deck..." />;
   }
 
   if (error) {
@@ -88,15 +91,7 @@ export default function DeckDetail() {
             Back to dashboard
           </Link>
         </Button>
-        <Card>
-          <CardContent className="flex flex-col items-center gap-3 py-8 text-center">
-            <AlertCircle className="h-8 w-8 text-destructive" />
-            <p className="text-sm text-muted-foreground">{error}</p>
-            <Button variant="outline" size="sm" onClick={fetchDeck}>
-              Try again
-            </Button>
-          </CardContent>
-        </Card>
+        <ErrorState message={error} onRetry={fetchDeck} />
       </div>
     );
   }
@@ -132,20 +127,13 @@ export default function DeckDetail() {
 
       {/* Study area */}
       {!hasCards ? (
-        <Card>
-          <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
-            <BookOpen className="h-12 w-12 text-muted-foreground/50" />
-            <div className="space-y-1">
-              <p className="font-medium">No cards in this deck</p>
-              <p className="text-sm text-muted-foreground">
-                Generate flashcards to add cards to this deck.
-              </p>
-            </div>
-            <Button asChild>
-              <Link to="/generate">Generate cards</Link>
-            </Button>
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={BookOpen}
+          title="No cards in this deck"
+          description="Generate flashcards to add cards to this deck."
+          actionLabel="Generate cards"
+          actionTo="/generate"
+        />
       ) : (
         <div className="space-y-4">
           {/* Progress */}

@@ -16,6 +16,11 @@ export default function AuthLayout({ title, description, children, asideTitle, a
           </div>
         </div>
 
+        <div className="auth-mobile-brand" aria-hidden="true">
+          <span className="auth-mark"><BookOpen /></span>
+          <span className="auth-mobile-name">FastRev</span>
+        </div>
+
         <Card className="auth-card">
           <div className="auth-card-heading">
             <h1 id="auth-title">{title}</h1>
