@@ -96,7 +96,7 @@ export async function mockDecksList(page, decks = MOCK_DECKS) {
         body: JSON.stringify({ decks }),
       });
     } else {
-      route.continue();
+      route.fallback();
     }
   });
 }
@@ -125,7 +125,7 @@ export async function mockDeckDetail(page, deckId, cards = MOCK_CARDS) {
         }),
       });
     } else {
-      route.continue();
+      route.fallback();
     }
   });
 }

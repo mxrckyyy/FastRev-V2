@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { MOCK_DECKS, mockAuthenticated, mockDecksList, mockEmptyDecks } from './fixtures.js';
+import { MOCK_DECKS, mockAuthenticated, mockDecksList, mockEmptyDecks, setAuthToken } from './fixtures.js';
 
 test.describe('Dashboard', () => {
   test.beforeEach(async ({ page }) => {
+    await setAuthToken(page);
     await mockAuthenticated(page);
   });
 
@@ -19,7 +20,7 @@ test.describe('Dashboard', () => {
     await mockEmptyDecks(page);
     await page.goto('/dashboard');
     await expect(page.locator('text=No decks yet')).toBeVisible();
-    await expect(page.locator('text=Create your first deck')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Create your first deck' })).toBeVisible();
   });
 
   test('renders decks when API returns data', async ({ page }) => {
@@ -61,6 +62,8 @@ test.describe('Dashboard', () => {
     await page.route('**/api/decks/*', (route) => {
       if (route.request().method() === 'DELETE') {
         route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ message: 'Deck and associated cards deleted successfully', deckId: '507f1f77bcf86cd799439012' }) });
+      } else {
+        route.fallback();
       }
     });
     await page.goto('/dashboard');
@@ -77,6 +80,8 @@ test.describe('Dashboard', () => {
     await page.route('**/api/decks/*', (route) => {
       if (route.request().method() === 'DELETE') {
         route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ error: { code: 'SERVER_ERROR', message: 'Failed to delete deck.' } }) });
+      } else {
+        route.fallback();
       }
     });
     await page.goto('/dashboard');

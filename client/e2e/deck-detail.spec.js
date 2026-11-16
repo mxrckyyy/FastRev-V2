@@ -1,11 +1,12 @@
 import { test, expect } from '@playwright/test';
-import { mockAuthenticated, mockDeckDetail, mockDeckNotFound } from './fixtures.js';
+import { mockAuthenticated, mockDeckDetail, mockDeckNotFound, setAuthToken } from './fixtures.js';
 import { MOCK_CARDS } from './fixtures.js';
 
 const TEST_DECK_ID = '507f1f77bcf86cd799439012';
 
 test.describe('Deck Detail', () => {
   test.beforeEach(async ({ page }) => {
+    await setAuthToken(page);
     await mockAuthenticated(page);
   });
 
@@ -87,6 +88,8 @@ test.describe('Deck Detail', () => {
     await page.route('**/api/decks', (route) => {
       if (route.request().method() === 'GET') {
         route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ decks: [] }) });
+      } else {
+        route.fallback();
       }
     });
     await page.goto(`/decks/${TEST_DECK_ID}`);
@@ -99,11 +102,15 @@ test.describe('Deck Detail', () => {
     await page.route('**/api/decks/*', (route) => {
       if (route.request().method() === 'DELETE') {
         route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ message: 'Deck and associated cards deleted successfully', deckId: TEST_DECK_ID }) });
+      } else {
+        route.fallback();
       }
     });
     await page.route('**/api/decks', (route) => {
       if (route.request().method() === 'GET') {
         route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ decks: [] }) });
+      } else {
+        route.fallback();
       }
     });
     await page.goto(`/decks/${TEST_DECK_ID}`);

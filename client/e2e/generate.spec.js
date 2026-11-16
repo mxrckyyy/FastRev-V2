@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { mockAuthenticated } from './fixtures.js';
+import { mockAuthenticated, setAuthToken } from './fixtures.js';
 import { MOCK_GENERATE_RESPONSE } from './fixtures.js';
 
 test.describe('Generate Page', () => {
   test.beforeEach(async ({ page }) => {
+    await setAuthToken(page);
     await mockAuthenticated(page);
     await page.route('**/api/decks', (route) => {
       if (route.request().method() === 'GET') {
@@ -16,7 +17,7 @@ test.describe('Generate Page', () => {
     await page.goto('/generate');
     await expect(page.locator('textarea')).toBeVisible();
     await expect(page.locator('button:has-text("Generate flashcards")')).toBeVisible();
-    await expect(page.locator('text=Study material')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Study material' })).toBeVisible();
   });
 
   test('rejects empty input', async ({ page }) => {

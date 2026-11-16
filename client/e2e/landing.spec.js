@@ -5,7 +5,7 @@ test.describe('Landing Page', () => {
     await page.goto('/');
     await expect(page.locator('h1')).toContainText('Make your notes');
     await expect(page.locator('text=Create your first deck')).toBeVisible();
-    await expect(page.locator('text=Log in')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Log in' }).first()).toBeVisible();
   });
 
   test('navigates to register via CTA', async ({ page }) => {

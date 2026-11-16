@@ -25,10 +25,10 @@ test.describe('Responsive Navigation', () => {
   test('desktop nav is visible on large screens', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    await expect(page.locator('nav.hidden')).toBeHidden(); // mobile nav hidden
-    // Desktop nav should be visible
-    const desktopNav = page.locator('nav').first();
-    await expect(desktopNav).toBeVisible();
+    // Mobile menu button should not be visible on desktop
+    await expect(page.locator('button[aria-label="Open menu"]')).toBeHidden();
+    // Desktop auth actions should be visible
+    await expect(page.getByRole('link', { name: 'Log in' }).first()).toBeVisible();
   });
 
   test('no horizontal overflow on mobile', async ({ page }) => {
