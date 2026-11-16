@@ -23,7 +23,18 @@ async function stabilize(page) {
       // Ignore font loading errors
     }
   });
-  // Additional stabilization for rendering consistency across platforms
+  // Ensure Inter font is loaded and applied
+  await page.evaluate(async () => {
+    try {
+      await document.fonts.load('400 1rem Inter');
+      await document.fonts.load('500 1rem Inter');
+      await document.fonts.load('600 1rem Inter');
+      await document.fonts.load('700 1rem Inter');
+    } catch {
+      // Ignore font loading errors
+    }
+  });
+  // Wait for font rendering to settle after loading
   await page.waitForTimeout(500);
 }
 
