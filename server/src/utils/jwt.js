@@ -4,7 +4,7 @@ import env from '../config/env.js';
 const DEFAULT_EXPIRES_IN = '7d';
 
 function getSecret() {
-  const secret = env.jwtSecret || process.env.JWT_SECRET;
+  const secret = process.env.JWT_SECRET || env.jwtSecret;
   if (!secret) {
     throw new Error('JWT_SECRET is not configured');
   }
