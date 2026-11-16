@@ -12,7 +12,19 @@ const TEST_DECK_ID = '507f1f77bcf86cd799439012';
 
 async function stabilize(page) {
   await page.waitForLoadState('networkidle');
-  await page.evaluate(() => document.fonts.ready);
+  // Wait for fonts to load with a timeout
+  await page.evaluate(async () => {
+    try {
+      await Promise.race([
+        document.fonts.ready,
+        new Promise((resolve) => setTimeout(resolve, 10000)),
+      ]);
+    } catch {
+      // Ignore font loading errors
+    }
+  });
+  // Additional stabilization for rendering consistency across platforms
+  await page.waitForTimeout(500);
 }
 
 const screenshotOptions = {
